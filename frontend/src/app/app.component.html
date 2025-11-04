@@ -1,0 +1,35 @@
+<div class="app-container">
+  <mat-card class="navigation-card">
+    <mat-card-content class="header">
+      <nav class="navigation">
+        <h1 class="app-title">InsumoPlus</h1>
+        <div class="nav-links" *ngIf="!hideNavLinks">
+          <a mat-button routerLink="/dashboard" routerLinkActive="active">
+            <mat-icon>dashboard</mat-icon>
+            Dashboard
+          </a>
+          <a mat-button routerLink="/product-entry" routerLinkActive="active">
+            <mat-icon>inventory</mat-icon>
+            Entrada de Produtos
+          </a>
+          <a mat-button routerLink="/documents" routerLinkActive="active">
+            <mat-icon>description</mat-icon>
+            Documentos
+          </a>
+          <a
+            mat-button
+            routerLink="/user-registration"
+            routerLinkActive="active"
+          >
+            <mat-icon>people</mat-icon>
+            Cadastro de Usuários
+          </a>
+        </div>
+      </nav>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="content-wrapper">
+    <router-outlet></router-outlet>
+  </div>
+</div>

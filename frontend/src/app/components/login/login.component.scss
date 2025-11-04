@@ -1,0 +1,17 @@
+@use "@angular/material" as mat;
+mat-card {
+  max-width: 400px;
+  margin: 2em auto;
+  text-align: center;
+}
+mat-form-field {
+  display: block;
+}
+mat-card-header {
+  display: block;
+  margin: 0 auto;
+  font-weight: 600;
+}
+.login-title {
+  color: #4f974e;
+}
