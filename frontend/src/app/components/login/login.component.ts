@@ -47,7 +47,7 @@ export class LoginComponent {
       next: () => {
         this.loginValid = true;
         this.loginSuccess = true;
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/product-entry']);
       },
       error: () => {
         this.loginValid = false;
