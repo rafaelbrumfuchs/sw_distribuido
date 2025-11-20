@@ -37,11 +37,19 @@ import type { User } from '../../models/user.model';
   templateUrl: './user-registration.component.html',
   styleUrls: ['./user-registration.component.scss'],
 })
+/**
+ * Componente responsável pelo cadastro de usuários.
+ * Gerencia o formulário de criação, valida CPF e exibe a lista de usuários em tabela.
+ */
 export class UserRegistrationComponent implements OnInit {
   userForm: FormGroup;
   users = new MatTableDataSource<User>();
   displayedColumns: string[] = ['id', 'name', 'email', 'cpf'];
 
+  /**
+   * Construtor injeta FormBuilder e UserService
+   * e inicializa o formulário com validações.
+   */
   constructor(private fb: FormBuilder, private userService: UserService) {
     this.userForm = this.fb.group({
       name: ['', Validators.required],
@@ -62,6 +70,11 @@ export class UserRegistrationComponent implements OnInit {
     });
   }
 
+  /**
+   * Validador personalizado de CPF.
+   * Verifica tamanho, padrão repetido e dígitos verificadores.
+   * Retorna { invalidCpf: true } quando o CPF é inválido.
+   */
   cpfValidator(control: any) {
     const cpf = control.value?.replace(/\D/g, '');
     if (!cpf || cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
@@ -89,12 +102,21 @@ export class UserRegistrationComponent implements OnInit {
     return null;
   }
 
+  /**
+   * Formata o CPF em tempo real enquanto o usuário digita,
+   * aplicando máscara e atualizando o valor no formulário.
+   */
   formatCpf(event: any) {
     const value = this.formatCpfValue(event.target.value);
     event.target.value = value;
     this.userForm.patchValue({ cpf: value });
   }
 
+  /**
+   * Handler do submit do formulário.
+   * Se o formulário for válido, cria o usuário via serviço,
+   * recarrega a lista e reseta o formulário.
+   */
   onSubmit() {
     if (this.userForm.valid) {
       const user: User = this.userForm.value;
@@ -112,6 +134,10 @@ export class UserRegistrationComponent implements OnInit {
     this.resetForm();
   }
 
+  /**
+   * Reseta o formulário para valores padrão
+   * e limpa erros/estados de toque/pristine.
+   */
   private resetForm() {
     this.userForm.reset({
       name: '',
@@ -128,11 +154,19 @@ export class UserRegistrationComponent implements OnInit {
     });
   }
 
+  /**
+   * Aplica filtro de texto na tabela de usuários
+   * com base no valor digitado no input.
+   */
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.users.filter = filterValue.trim().toLowerCase();
   }
 
+  /**
+   * Aplica máscara de CPF em uma string crua,
+   * retornando no formato 000.000.000-00.
+   */
   formatCpfValue(cpf: string): string {
     return cpf
       .replace(/\D/g, '')

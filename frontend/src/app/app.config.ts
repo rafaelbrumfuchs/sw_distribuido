@@ -23,7 +23,21 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 
+// Registra as configurações de localização para português (Brasil),
+// permitindo formatação de datas, números e moedas no padrão pt-BR.
 registerLocaleData(localePt);
+
+/**
+ * Configuração principal da aplicação Angular.
+ *
+ * Define:
+ * - Estratégia de detecção de mudanças (Zone.js).
+ * - Rotas da aplicação.
+ * - Módulos compartilhados (Forms, CommonModule, animações).
+ * - Módulos do Angular Material utilizados.
+ * - Configuração de internacionalização (LOCALE_ID, MAT_DATE_LOCALE).
+ * - HttpClient para chamadas HTTP.
+ */
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),

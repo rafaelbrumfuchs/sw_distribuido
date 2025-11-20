@@ -6,10 +6,21 @@ import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
+/**
+ * Serviço responsável por operações relacionadas a documentos.
+ * Faz busca, filtro e download de documentos na API.
+ */
 export class DocumentService {
   private apiUrl = `${environment.apiUrl}/documents`;
   constructor(private http: HttpClient) {}
 
+  /**
+   * Busca lista de documentos na API, aplicando filtros opcionais via query string.
+   * Filtros suportados: filename, id, upload_date.
+   *
+   * @param filters Objeto com propriedades opcionais para filtrar os documentos.
+   * @returns Observable com array de documentos filtrados.
+   */
   getDocuments(filters: any = {}): Observable<any[]> {
     let params = new HttpParams();
 
@@ -28,6 +39,13 @@ export class DocumentService {
     return this.http.get<any[]>(this.apiUrl, { params });
   }
 
+  /**
+   * Realiza o download de um documento específico, retornando um Blob.
+   * Ideal para ser utilizado na geração de um link de download ou criação de URL de arquivo.
+   *
+   * @param id Identificador do documento a ser baixado.
+   * @returns Observable com o conteúdo do arquivo em formato Blob.
+   */
   downloadDocument(id: number) {
     return this.http.get(`${this.apiUrl}/${id}/download`, {
       responseType: 'blob',

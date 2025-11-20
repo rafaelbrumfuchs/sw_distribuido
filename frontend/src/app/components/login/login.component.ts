@@ -25,6 +25,12 @@ import { LoginUserDTO } from '../../models/auth.model';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
+
+/**
+ * Componente de login.
+ * Exibe formulário simples de e-mail e senha
+ * e realiza autenticação via AuthService.
+ */
 export class LoginComponent {
   user = {
     email: '',
@@ -37,6 +43,11 @@ export class LoginComponent {
 
   constructor(private authService: AuthService) {}
 
+  /**
+   * Realiza o login utilizando as credenciais informadas.
+   * Ao autenticar com sucesso, navega para a rota /product-entry.
+   * Em caso de erro, atualiza flags para exibir feedback ao usuário.
+   */
   login() {
     const loginDTO: LoginUserDTO = {
       email: this.user.email,

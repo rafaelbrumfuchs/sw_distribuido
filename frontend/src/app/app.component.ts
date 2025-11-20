@@ -24,8 +24,15 @@ import { filter } from 'rxjs/operators';
   ],
 })
 export class AppComponent {
-  hideNavLinks = false; // controla se os links aparecem
+  // Indica se os links de navegação devem ser ocultados.
+  hideNavLinks = false;
 
+  /**
+   * Construtor do componente.
+   * 
+   * Injeta o Router para poder ouvir eventos de navegação
+   * e atualizar a flag `hideNavLinks` conforme a rota atual.
+   */
   constructor(private router: Router) {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))

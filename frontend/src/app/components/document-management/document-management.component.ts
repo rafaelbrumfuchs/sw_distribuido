@@ -35,6 +35,12 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './document-management.component.html',
   styleUrls: ['./document-management.component.scss'],
 })
+
+/**
+ * Componente de gestão de documentos.
+ * Permite filtrar por nome, ID e data de upload, listar documentos
+ * e efetuar o download do arquivo associado.
+ */
 export class DocumentManagementComponent implements OnInit {
   documents: any[] = [];
 
@@ -55,6 +61,11 @@ export class DocumentManagementComponent implements OnInit {
     private http: HttpClient
   ) {}
 
+  /**
+   * Ciclo de vida do Angular.
+   * Ao iniciar, carrega a lista inicial de documentos
+   * e adiciona assinaturas reativas aos filtros com debounce.
+   */
   ngOnInit(): void {
     this.loadDocuments();
 
@@ -71,6 +82,11 @@ export class DocumentManagementComponent implements OnInit {
       .subscribe(() => this.loadDocuments());
   }
 
+  /**
+   * Monta objeto de filtros com base nos campos de filtro
+   * e requisita os documentos na API via DocumentService.
+   * Também ordena o resultado por ID decrescente.
+   */
   loadDocuments(): void {
     const filters: any = {};
 
@@ -95,11 +111,19 @@ export class DocumentManagementComponent implements OnInit {
     });
   }
 
+  /**
+   * Formata string de data para o formato local do browser,
+   * facilitando leitura na tabela.
+   */
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
     return date.toLocaleDateString();
   }
 
+  /**
+   * Faz o download de um documento (PDF ou outro tipo),
+   * criando um Blob a partir da resposta e disparando um link dinâmico.
+   */
   downloadPdf(doc: { id: number; filename: string; file_type: string }) {
     this.documentService.downloadDocument(doc.id).subscribe({
       next: (fileBlob) => {

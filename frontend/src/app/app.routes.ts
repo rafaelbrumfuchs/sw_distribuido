@@ -4,6 +4,13 @@ import { UserRegistrationComponent } from './components/user-registration/user-r
 import { authGuard } from './guards/auth.guards';
 import { DocumentManagementComponent } from './components/document-management/document-management.component';
 
+/**
+ * Definição das rotas principais da aplicação.
+ *
+ * Cada rota mapeia um path para um componente específico
+ * e, quando necessário, utiliza o `authGuard` para proteger
+ * o acesso (exigindo autenticação).
+ */
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   {

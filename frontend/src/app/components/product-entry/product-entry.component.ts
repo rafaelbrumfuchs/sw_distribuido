@@ -49,6 +49,11 @@ import { ProductEntryListDto } from './dto/list-product-entry.dto';
   templateUrl: './product-entry.component.html',
   styleUrls: ['./product-entry.component.scss'],
 })
+/**
+ * Componente responsável pelo cadastro de entradas de produtos.
+ * Integra formulário, tabela de entradas, autocomplete de produtos/fornecedores
+ * e upload de arquivo PDF associado à entrada.
+ */
 export class ProductEntryComponent implements OnInit {
   entryForm: FormGroup;
   entries = new MatTableDataSource<ProductEntryListDto>([]);
@@ -74,6 +79,10 @@ export class ProductEntryComponent implements OnInit {
   file_size_error: boolean = false;
   readonly MAX_FILE_SIZE = 30 * 1024; // é 30kb
 
+  /**
+   * Construtor injeta FormBuilder e ProductEntryService
+   * e inicializa o formulário e os observables de autocomplete.
+   */
   constructor(
     private fb: FormBuilder,
     private productEntryService: ProductEntryService
@@ -104,6 +113,11 @@ export class ProductEntryComponent implements OnInit {
       );
   }
 
+  /**
+   * Ciclo de vida do Angular.
+   * Ao iniciar o componente, carrega os dados iniciais e configura as assinaturas do formulário.
+   * Também define o filtro personalizado para a tabela de entradas.
+   */
   ngOnInit() {
     this.loadData();
     this.setupFormSubscriptions();
@@ -122,6 +136,10 @@ export class ProductEntryComponent implements OnInit {
     };
   }
 
+  /**
+   * Carrega entradas, produtos e fornecedores da API.
+   * Preenche listas locais e trata eventual erro com log.
+   */
   private loadData() {
     this.productEntryService.getEntries().subscribe({
       next: (entries) => {
@@ -142,21 +160,26 @@ export class ProductEntryComponent implements OnInit {
 
     //fornecedores 
     this.productEntryService.getSuppliers().subscribe({
-    next: (suppliers: Supplier[]) => {
-    this.suppliers = suppliers || [];
+      next: (suppliers: Supplier[]) => {
+        this.suppliers = suppliers || [];
 
-    // Atualiza filteredSuppliers
-    this.filteredSuppliers = this.entryForm.get('supplierName')!.valueChanges.pipe(
-      startWith(''),
-      map((value: string) => this._filterSuppliers(value))
-    );
-  },
-  error: (err: unknown) => {
-    console.error('Erro ao carregar fornecedores', err);
-    this.suppliers = [];
-  },
-});
+        // Atualiza filteredSuppliers
+        this.filteredSuppliers = this.entryForm.get('supplierName')!.valueChanges.pipe(
+          startWith(''),
+          map((value: string) => this._filterSuppliers(value))
+        );
+      },
+      error: (err: unknown) => {
+        console.error('Erro ao carregar fornecedores', err);
+        this.suppliers = [];
+      },
+    });
   }
+
+  /**
+   * Recarrega apenas as entradas a partir da API
+   * e atualiza a tabela.
+   */
   private loadEntries() {
     this.productEntryService.getEntries().subscribe({
       next: (entries) => (this.entries.data = entries || []),
@@ -164,6 +187,11 @@ export class ProductEntryComponent implements OnInit {
     });
   }
 
+  /**
+   * Configura assinaturas para campos do formulário,
+   * recalculando total e atualizando nomes de produto/fornecedor
+   * de acordo com os IDs digitados.
+   */
   private setupFormSubscriptions() {
     this.entryForm
       .get('quantity')
@@ -208,6 +236,11 @@ export class ProductEntryComponent implements OnInit {
     });
   }
 
+  /**
+   * Validação/ajuste ao sair do campo ID do produto.
+   * Se o ID for inválido, reseta campos e exibe alerta.
+   * Caso contrário, tenta buscar o produto na API.
+   */
   onProductIdBlur() {
     const productIdNum = this.entryForm.get('productId')?.value;
 
@@ -235,6 +268,11 @@ export class ProductEntryComponent implements OnInit {
     });
   }
 
+  /**
+   * Validação/ajuste ao sair do campo ID do fornecedor.
+   * Se inválido, reseta campos e exibe alerta; caso contrário,
+   * tenta buscar o fornecedor na API e preenche o nome.
+   */
   onSupplierIdBlur() {
     const supplierIdNum = this.entryForm.get('supplierId')?.value;
 
@@ -261,6 +299,11 @@ export class ProductEntryComponent implements OnInit {
     });
   }
 
+  /**
+   * Handler ao selecionar uma opção de produto (por ID)
+   * vindo de um select/autocomplete.
+   * Converte valor para number, localiza o produto e atualiza campos.
+   */
   onProductOptionSelected(selectedValue: string) {
     if (!selectedValue) return;
 
@@ -277,6 +320,10 @@ export class ProductEntryComponent implements OnInit {
     }
   }
 
+  /**
+   * Handler ao selecionar opção de fornecedor (por ID) no select/autocomplete.
+   * Atualiza ID e nome do fornecedor no formulário.
+   */
   onSupplierOptionSelected(selectedValue: number) {
     const supplier = this.suppliers.find(
       (s) => Number(s.id) === Number(selectedValue)
@@ -289,19 +336,32 @@ export class ProductEntryComponent implements OnInit {
     }
   }
   
-onProductNameSelected(selectedName: string) {
-  const product = this.products.find(p => p.name === selectedName);
-  if (product) {
-    this.entryForm.patchValue({ productName: product.name, productId: product.id });
+  /**
+   * Handler ao selecionar produto pelo nome no autocomplete.
+   * Localiza o produto na lista e preenche ID e nome.
+   */
+  onProductNameSelected(selectedName: string) {
+    const product = this.products.find(p => p.name === selectedName);
+    if (product) {
+      this.entryForm.patchValue({ productName: product.name, productId: product.id });
+    }
   }
-}
 
-onSupplierNameSelected(selectedName: string) {
-  const supplier = this.suppliers.find(s => s.name === selectedName);
-  if (supplier) {
-    this.entryForm.patchValue({ supplierName: supplier.name, supplierId: supplier.id });
+  /**
+   * Handler ao selecionar fornecedor pelo nome no autocomplete.
+   * Localiza o fornecedor na lista e preenche ID e nome.
+   */
+  onSupplierNameSelected(selectedName: string) {
+    const supplier = this.suppliers.find(s => s.name === selectedName);
+    if (supplier) {
+      this.entryForm.patchValue({ supplierName: supplier.name, supplierId: supplier.id });
+    }
   }
-}
+
+  /**
+   * Calcula o valor total (quantity * unitValue)
+   * e atualiza o campo totalValue sem disparar novos eventos.
+   */
   private calculateTotal() {
     const q = parseFloat(this.entryForm.get('quantity')?.value) || 0;
     const v = parseFloat(this.entryForm.get('unitValue')?.value) || 0;
@@ -311,16 +371,28 @@ onSupplierNameSelected(selectedName: string) {
     );
   }
 
+  /**
+   * Filtra a lista de produtos de acordo com parte do nome
+   * para alimentar o autocomplete.
+   */
   private _filterProducts(value: string): Product[] {
-  const filterValue = value ? value.toLowerCase() : '';
-  return this.products.filter(p => p.name.toLowerCase().includes(filterValue));
-}
+    const filterValue = value ? value.toLowerCase() : '';
+    return this.products.filter(p => p.name.toLowerCase().includes(filterValue));
+  }
 
+  /**
+   * Filtra a lista de fornecedores de acordo com parte do nome
+   * para alimentar o autocomplete.
+   */
   private _filterSuppliers(value: string): Supplier[] {
-  const filterValue = value ? value.toLowerCase() : '';
-  return this.suppliers.filter(s => s.name.toLowerCase().includes(filterValue));
-}
+    const filterValue = value ? value.toLowerCase() : '';
+    return this.suppliers.filter(s => s.name.toLowerCase().includes(filterValue));
+  }
 
+  /**
+   * Função de exibição para autocomplete de produtos.
+   * Retorna string "id - nome" ou apenas o valor quando não encontrado.
+   */
   displayProduct(value: Product | string | null): string {
     if (!value) return '';
     if (typeof value === 'string') {
@@ -330,6 +402,10 @@ onSupplierNameSelected(selectedName: string) {
     return `${value.id} - ${value.name}`;
   }
 
+  /**
+   * Função de exibição para autocomplete de fornecedores.
+   * Retorna string "id - nome" ou apenas o valor quando não encontrado.
+   */
   displaySupplier(value: Supplier | string | null): string {
     if (!value) return '';
     if (typeof value === 'string') {
@@ -339,6 +415,11 @@ onSupplierNameSelected(selectedName: string) {
     return `${value.id} - ${value.name}`;
   }
 
+  /**
+   * Handler de envio do formulário.
+   * Valida campos, exige arquivo PDF e envia dados via FormData para a API.
+   * Em caso de sucesso, adiciona a nova entrada na tabela e reseta o formulário.
+   */
   onSubmit() {
     if (!this.entryForm.valid) {
       this.entryForm.markAllAsTouched();
@@ -416,6 +497,10 @@ onSupplierNameSelected(selectedName: string) {
     this.resetForm();
   }
 
+  /**
+   * Reseta o formulário para valores padrão,
+   * marca como intocado/pristine e limpa erros dos controles.
+   */
   private resetForm() {
     this.entryForm.reset({
       productId: null,
@@ -442,6 +527,10 @@ onSupplierNameSelected(selectedName: string) {
     });
   }
 
+  /**
+   * Solicita exclusão de uma entrada, mediante confirmação do usuário,
+   * e recarrega a lista de entradas em caso de sucesso.
+   */
   deleteEntry(entry: ProductEntry) {
     if (entry.id && confirm('Tem certeza que deseja deletar esta entrada?')) {
       this.productEntryService.deleteEntry(entry.id).subscribe({
@@ -459,6 +548,10 @@ onSupplierNameSelected(selectedName: string) {
     this.entries.filter = value.trim().toLowerCase();
   }
 
+  /**
+   * Handler chamado quando um arquivo é selecionado.
+   * Valida se é PDF, verifica tamanho máximo e converte para base64.
+   */
   public onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
