@@ -7,6 +7,13 @@ import { UserDTO } from 'src/users/dto/user.dto';
 import { JwtPayload } from './dto/jwt-payload.interface';
 
 @Injectable()
+/**
+ * Guard de autenticação baseado na estratégia 'jwt' do Passport.
+ *
+ * É usado para proteger rotas que exigem token JWT válido.
+ * Ao ser aplicado (via @UseGuards), delega a validação para
+ * a estratégia configurada com o nome 'jwt'.
+ */
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
     super({

@@ -11,6 +11,16 @@ import * as uuid from 'uuid';
 import { comparePasswords } from 'src/utils';
 
 @Injectable()
+/**
+ * Serviço de usuários.
+ *
+ * Centraliza a lógica de negócio relacionada a usuários:
+ * - Criação, atualização, deleção e listagem
+ * - Autenticação/validação de credenciais
+ * - Conversão de entidades em DTOs
+ *
+ * Utiliza o repositório TypeORM de `UserEntity` para acesso ao banco.
+ */
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
@@ -33,6 +43,16 @@ export class UsersService {
     return toUserDTO(user);
   }
 
+  /**
+   * Cria um novo usuário no sistema.
+   * - Gera UID único
+   * - Normaliza CPF
+   * - Salva no banco
+   * - Converte entidade salva em UserDTO
+   *
+   * @param dto Dados do usuário a ser criado.
+   * @returns UserDTO do usuário recém-criado.
+   */
   async createUser(userDTO: UserCreateDTO): Promise<UserDTO> {
     const userInDB = await this.usersRepository.findOne({ where: { email: userDTO.email } });
     if (userInDB) {
@@ -48,6 +68,18 @@ export class UsersService {
     return toUserDTO(saved);
   }
 
+  /**
+   * Atualiza os dados de um usuário existente.
+   * - Localiza o usuário pelo ID
+   * - Atualiza os campos enviados
+   * - Salva no banco
+   *
+   * CPF também é normalizado (somente números).
+   *
+   * @param id ID do usuário a ser atualizado.
+   * @param dto Dados de atualização.
+   * @returns UserDTO atualizado.
+   */
   async updateUser(id: number, userDTO: UserCreateDTO): Promise<UserDTO> {
     const user = await this.usersRepository.preload({
       id,
@@ -62,6 +94,12 @@ export class UsersService {
     return toUserDTO(saved);
   }
 
+  /**
+   * Retorna a lista de todos os usuários cadastrados.
+   * Converte cada entidade em UserDTO e empacota dentro de UserListDTO.
+   *
+   * @returns Lista de usuários no formato UserListDTO.
+   */
   async getAllUsers(): Promise<UserListDTO> {
     const list: UserListDTO = new UserListDTO();
     const result: UserEntity[] = await this.usersRepository.find();
@@ -81,6 +119,13 @@ export class UsersService {
     }
   }
 
+  /**
+   * Busca um usuário pelo e-mail informado no login.
+   * Retorna o DTO se encontrado ou lança exceção caso não exista.
+   *
+   * @param loginUserDTO Objeto contendo email e senha.
+   * @returns UserDTO do usuário encontrado.
+   */
   async findByLogin({ email, password }: LoginUserDTO): Promise<UserDTO> {
     const user = await this.usersRepository.findOne({ where: { email } });
     if (!user) {
@@ -99,10 +144,26 @@ export class UsersService {
     return await this.usersRepository.findOne(options);
   }
 
+  /**
+   * Busca um usuário a partir do payload (geralmente extraído de um token JWT),
+   * utilizando o campo `uid` como chave de pesquisa.
+   *
+   * @param payload Objeto contendo pelo menos a propriedade `uid`.
+   * @returns Promessa que resolve para um `UserDTO` correspondente ao `uid`.
+   */
   async findByPayload({ uid }: any): Promise<UserDTO> {
     return toUserDTO(await this.findOne({ where: { uid } }));
   }
 
+  /**
+   * Mapeia um `UserCreateDTO` para um objeto parcial de `UserEntity`,
+   * adequado para operações de criação/atualização no banco.
+   *
+   * Também normaliza o CPF, removendo todos os caracteres não numéricos.
+   *
+   * @param dto DTO com os dados de criação de usuário.
+   * @returns Objeto parcial de `UserEntity` contendo os campos principais.
+   */
   private mapUserDTO(dto: UserCreateDTO): Partial<UserEntity> {
     return {
       name: dto.name,

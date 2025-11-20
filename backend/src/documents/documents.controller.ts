@@ -8,6 +8,11 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('documents')
 @UseGuards(JwtAuthGuard)
+
+/**
+ * Controller responsável pelas rotas HTTP relacionadas a documentos.
+ * Todas as rotas são protegidas por `JwtAuthGuard`.
+ */
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
@@ -27,6 +32,11 @@ export class DocumentsController {
     return this.documentsService.findById(+id);
   }
 
+  /**
+   * GET /documents/:id/download
+   * Faz o download do arquivo PDF associado ao documento.
+   * Seta os headers apropriados e devolve o conteúdo do arquivo no corpo da resposta.
+   */
   @Get(':id/download')
   async download(@Param('id') id: number, @Res() res: Response) {
     const doc = await this.documentsService.getDocumentById(+id);

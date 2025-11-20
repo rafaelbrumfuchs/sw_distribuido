@@ -6,9 +6,19 @@ import { UserListDTO } from './dto/user-list.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('users')
+
+/**
+ * Controller responsável pelos endpoints de usuários.
+ * Define as rotas HTTP sob o path `/users` e delega a lógica para `UsersService`.
+ */
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
+  /**
+   * GET /users
+   * Retorna a lista de usuários (empacotada em `UserListDTO`).
+   * Protegido pelo `JwtAuthGuard`, exigindo autenticação.
+   */
   @Get()
   @UseGuards(JwtAuthGuard)
   async findAll(): Promise<UserListDTO> {
@@ -27,6 +37,12 @@ export class UsersController {
     return await this.userService.createUser(userCreateDTO);
   }
 
+  /**
+   * PUT /users/:id
+   * Atualiza os dados de um usuário existente com base no ID informado.
+   * Recebe o corpo no formato `UserCreateDTO` e retorna o usuário atualizado.
+   * Também é protegido por `JwtAuthGuard`.
+   */
   @Put(':id')
   @UseGuards(JwtAuthGuard)
   async update(@Param('id') id: number, @Body() userDTO: UserCreateDTO): Promise<UserDTO> {

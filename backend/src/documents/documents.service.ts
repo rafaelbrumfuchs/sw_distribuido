@@ -8,12 +8,22 @@ import { DocumentFilter } from './dto/document-filter.dto';
 import { toDocumentDTO } from './mapper';
 
 @Injectable()
+
+/**
+ * Serviço responsável pela lógica de negócio de documentos:
+ * criação, consulta com filtros e busca por ID.
+ */
 export class DocumentsService {
   constructor(
     @InjectRepository(DocumentEntity)
     private documentsRepository: Repository<DocumentEntity>,
   ) {}
 
+  /**
+   * Cria um novo documento no banco com base no DTO recebido.
+   * Em caso de chave duplicada (ex.: arquivo já existente),
+   * lança `HttpException` com status 400.
+   */
   async createDocument(dto: CreateDocumentDTO): Promise<DocumentDTO> {
     const doc = this.documentsRepository.create(dto);
 
@@ -28,6 +38,10 @@ export class DocumentsService {
     }
   }
 
+  /**
+   * Aplica filtros dinâmicos (tipo de arquivo, usuário, id, nome, data)
+   * usando QueryBuilder e retorna uma lista de `DocumentDTO`.
+   */
   async findWithFilters(filters: DocumentFilter): Promise<DocumentDTO[]> {
     const query = this.documentsRepository
       .createQueryBuilder('doc')
@@ -60,6 +74,10 @@ export class DocumentsService {
     return docs.map(toDocumentDTO);
   }
 
+  /**
+   * Busca um documento por ID, incluindo relações com usuário e produto.
+   * Lança exceção 404 caso o documento não exista.
+   */
   async findById(id: number): Promise<DocumentDTO> {
     const doc = await this.documentsRepository.findOne({
       where: { id },
@@ -69,6 +87,10 @@ export class DocumentsService {
     return toDocumentDTO(doc);
   }
 
+  /**
+   * Busca diretamente a entidade de documento por ID,
+   * retornando `DocumentEntity` (usado, por exemplo, para download do arquivo).
+   */
   async getDocumentById(id: number): Promise<DocumentEntity> {
     const document = await this.documentsRepository.findOne({ where: { id: id } });
     return document;
